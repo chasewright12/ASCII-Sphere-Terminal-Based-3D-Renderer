@@ -33,15 +33,17 @@ Press 'Ctrl+C' to stop the animation.
 
 ### Images
 <div align="center">
+<figure>
 <img src="./photos/Captura de tela 2026-09-02 025654.png">
-<legend>Figure.1 - ASCII Setup Image</legend>
+<figcaption>Figure.1 - ASCII Setup Image</figcaption>
+</figure>
 </div>
 
 ### Langs
 
 <div align="center">
     <table border="1">
-    <td width="350px">
+    <td width="250px">
     <strong>
     C
     </strong>
