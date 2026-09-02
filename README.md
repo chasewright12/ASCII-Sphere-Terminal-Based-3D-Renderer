@@ -35,6 +35,7 @@ Press 'Ctrl+C' to stop the animation.
 <div align="center">
 <figure>
 <img src="./photos/Captura de tela 2026-09-02 025654.png">
+<br>
 <figcaption>Figure.1 - ASCII Setup Image</figcaption>
 </figure>
 </div>
