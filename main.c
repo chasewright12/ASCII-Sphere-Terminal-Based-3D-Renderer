@@ -18,6 +18,9 @@ int main(void)
 
     char frame[(WIDTH + 1) * HEIGHT + 32];
 
+    printf("\x1b[2J");
+    setvbuf(stdout, NULL, _IONBF, 16384);
+
     while (1)
     {
         memset(output, ' ', WIDTH * HEIGHT);
@@ -62,7 +65,7 @@ int main(void)
         }
 
         int pos = 0;
-        pos += sprintf(frame + pos, "\x1b[2J\x1b[H");
+        pos += sprintf(frame + pos, "\x1b[H");
         for (int y = 0; y < HEIGHT; y++)
         {
             for (int x = 0; x < WIDTH; x++)
