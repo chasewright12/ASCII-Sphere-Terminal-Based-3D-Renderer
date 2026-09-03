@@ -1,22 +1,35 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include <unistd.h>
 #include <string.h>
-
-#define WIDTH 120
-#define HEIGHT 45
-#define RADIUS 20
+#include <sys/ioctl.h>
 
 int main(void)
 {
+    struct winsize ws;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
+
+    int WIDTH = ws.ws_col > 0 ? ws.ws_col : 80;
+    int HEIGHT = ws.ws_row > 1 ? ws.ws_row - 1 : 24;
+
+    float RADIUS = (WIDTH < HEIGHT * 2 ? WIDTH / 2.2f : HEIGHT) * 0.45f; // Adjust radius based on terminal size to maintain aspect radio
+
+    // Density decrement based on radius to maintain visual quality across different sizes
+    float thetaStep = 0.045f * (50.0f / RADIUS);
+    float phiStep = 0.018f * (50.0f / RADIUS);
+    if (thetaStep > 0.05f)
+        thetaStep = 0.05f;
+    if (phiStep > 0.02f)
+        phiStep = 0.02f;
+
     float A = 0, B = 0;
 
-    char output[WIDTH * HEIGHT];
-    float zBuffer[WIDTH * HEIGHT];
+    char *output = malloc(WIDTH * HEIGHT);
+    float *zBuffer = malloc(WIDTH * HEIGHT * sizeof(float));
+    char *frame = malloc((WIDTH + 1) * HEIGHT + 32);
 
     const char *luminance = ".,-~:;=!*#$@";
-
-    char frame[(WIDTH + 1) * HEIGHT + 32];
 
     printf("\x1b[2J");
     setvbuf(stdout, NULL, _IONBF, 16384);
@@ -24,13 +37,12 @@ int main(void)
     while (1)
     {
         memset(output, ' ', WIDTH * HEIGHT);
-        memset(zBuffer, 0, sizeof(zBuffer));
+        memset(zBuffer, 0, WIDTH * HEIGHT * sizeof(float));
 
-        for (float theta = 0; theta < 2 * M_PI; theta += 0.045)
+        for (float theta = 0; theta < 2 * M_PI; theta += thetaStep)
         {
-            for (float phi = 0; phi < M_PI; phi += 0.018)
+            for (float phi = 0; phi < M_PI; phi += phiStep)
             {
-
                 float x0 = RADIUS * sin(phi) * cos(theta);
                 float y0 = RADIUS * sin(phi) * sin(theta);
                 float z0 = RADIUS * cos(phi);
@@ -41,11 +53,11 @@ int main(void)
                 float x2 = x0 * cos(B) + z1 * sin(B);
                 float z2 = -x0 * sin(B) + z1 * cos(B);
 
-                float distance = 70.0f;
+                float distance = RADIUS * 1.4f;
                 float ooz = 1 / (z2 + distance);
 
-                int xp = (int)(WIDTH / 2 + 40 * ooz * x2 * 2.2);
-                int yp = (int)(HEIGHT / 2 + 20 * ooz * y1);
+                int xp = (int)(WIDTH / 2 + 2 * ooz * x2 * WIDTH * 0.4f);
+                int yp = (int)(HEIGHT / 2 + ooz * y1 * HEIGHT * 0.4f);
 
                 int idx = xp + yp * WIDTH;
 
@@ -69,9 +81,7 @@ int main(void)
         for (int y = 0; y < HEIGHT; y++)
         {
             for (int x = 0; x < WIDTH; x++)
-            {
                 frame[pos++] = output[x + y * WIDTH];
-            }
             frame[pos++] = '\n';
         }
         frame[pos] = '\0';
@@ -85,5 +95,8 @@ int main(void)
         usleep(30000);
     }
 
+    free(output);
+    free(zBuffer);
+    free(frame);
     return 0;
 }
