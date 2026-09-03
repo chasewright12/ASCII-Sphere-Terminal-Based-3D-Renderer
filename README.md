@@ -13,6 +13,7 @@ A terminal-based 3D renderer written in C that projects a rotating sphere using 
 
 - GCC (or any C compiler with `math.h` support)
 - A Unix-like terminal (Linux, macOS, or WSL) — uses ANSI escape codes for screen clearing
+- Windows can also be used as well, but I strongly recommend use Unix-like distros
 
 ### Build & Run
 ```bash
